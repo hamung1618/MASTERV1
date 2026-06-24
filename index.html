@@ -4,12 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Laporan Penjualan - Gajah Mas</title>
-
-  <!-- ===== PWA MANIFEST ===== -->
-<link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkdhamFoIE1hcyAtIExhcG9yYW4gUGVuand1YWxhbiIsCiAgInNob3J0X25hbWUiOiAiR2FqYWggTWFzIiwKICAiZGVzY3JpcHRpb24iOiAiTGFwb3JhbiBQZW5qdWFsYW4gR2FqYWggTWFzIiwKICAic3RhcnRfdXJsIjogIi4iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMxZTNjNzIiLAogICJ0aGVtZV9jb2xvciI6ICIjMmE1Mjk4IiwKICAiaWNvbnMiOiBbCiAgICB7CiAgICAgICJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMDAgMTAwJyUzRSUzQ3JlY3Qgd2lkdGg9JzEwMCcgaGVpZ2h0PScxMDAnIHJ4PScxMicgZmlsbD0nJTIzZmZjMTA3Jy8lM0UlM0N0ZXh0IHg9JzUwJyB5PSc2OCcgZm9udC1zaXplPSc0OCcgdGV4dC1hbmNob3I9J21pZGRsZScgZm9udC13ZWlnaHQ9J2JvbGQnIGZpbGw9JyUyMzFlM2M3MicgZm9udC1mYW1pbHk9J0FyaWFsJyUzRUdNJTNDL3RleHQlM0UlM0Mvc3ZnJTNFIiwKICAgICAgInNpemVzIjogIjE5MngxOTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfQogIF0KfQ==">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
     <style>
         * {
             margin: 0;
@@ -26,7 +20,6 @@
             padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* ===== HEADER TIPIS ===== */
         .top-header {
             background: white;
             padding: 6px 12px;
@@ -66,20 +59,6 @@
             font-size: 9px;
             font-weight: 600;
         }
-        .top-header .install-btn {
-            background: #2a5298;
-            color: white;
-            border: none;
-            padding: 3px 10px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            display: none;
-        }
-        .top-header .install-btn.show {
-            display: inline-block;
-        }
 
         .content-area {
             padding: 10px 12px 30px;
@@ -87,7 +66,6 @@
             margin: 0 auto;
         }
 
-        /* ===== DASH HEADER ===== */
         .dash-header {
             background: white;
             border-radius: 8px;
@@ -114,7 +92,6 @@
             font-weight: 500;
         }
 
-        /* ===== CARDS ===== */
         .cards-total {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -148,10 +125,6 @@
             font-size: 11px;
             color: #1a1a1a;
         }
-        .card-total .card-val.sales-total {
-            font-size: 11px;
-            color: #2a5298;
-        }
         .card-total.sales-card {
             border-left: 3px solid #2a5298;
         }
@@ -161,7 +134,6 @@
             margin-top: 1px;
         }
 
-        /* ===== FILTER BAR ===== */
         .filter-bar {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -231,7 +203,6 @@
             grid-column: 1 / -1;
         }
 
-        /* ===== TABLE ===== */
         .section-title {
             font-size: 13px;
             font-weight: 600;
@@ -369,7 +340,7 @@
             margin-bottom: 4px;
         }
 
-        /* ===== FOOTER ACTIONS ===== */
+        /* ===== FOOTER ===== */
         .footer-actions {
             display: flex;
             align-items: center;
@@ -424,6 +395,13 @@
         .footer-actions .btn-print:hover {
             opacity: 0.9;
         }
+        .footer-actions .btn-load {
+            background: #8b5cf6;
+            color: white;
+        }
+        .footer-actions .btn-load:hover {
+            opacity: 0.9;
+        }
 
         .hidden {
             display: none !important;
@@ -445,7 +423,17 @@
             width: 100%;
         }
 
-        /* ===== RESPONSIVE HP ===== */
+        .footer-actions .url-input {
+            flex: 2;
+            min-width: 150px;
+            padding: 4px 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 10px;
+            background: white;
+        }
+
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 640px) {
             .top-header {
                 padding: 4px 10px;
@@ -462,10 +450,6 @@
             .top-header .user-info {
                 font-size: 9px;
                 gap: 4px;
-            }
-            .top-header .install-btn {
-                font-size: 9px;
-                padding: 2px 8px;
             }
 
             .content-area {
@@ -511,7 +495,6 @@
                 grid-template-columns: 1fr 1fr;
                 gap: 4px;
                 padding: 8px 10px;
-                border-radius: 6px;
             }
             .filter-bar .filter-group label {
                 font-size: 8px;
@@ -526,25 +509,15 @@
                 min-height: 40px;
                 max-height: 50px;
             }
-            .filter-bar .filter-group select[multiple] option {
-                font-size: 9px;
-                padding: 1px 4px;
-            }
             .filter-bar .btn-filter {
                 font-size: 10px;
                 padding: 3px 10px;
                 min-width: 50px;
             }
-            .filter-bar .filter-actions {
-                gap: 4px;
-            }
 
             .section-title {
                 font-size: 11px;
                 margin: 8px 0 4px;
-            }
-            .section-title .sub {
-                font-size: 10px;
             }
 
             table {
@@ -584,6 +557,11 @@
                 padding: 3px 8px;
                 min-width: 50px;
             }
+            .footer-actions .url-input {
+                font-size: 9px;
+                padding: 3px 8px;
+                min-width: 100px;
+            }
             .err,
             .success {
                 font-size: 10px;
@@ -603,15 +581,8 @@
             .cards-total {
                 grid-template-columns: repeat(2, 1fr);
             }
-            .filter-bar {
-                grid-template-columns: 1fr 1fr;
-            }
-            .filter-bar .filter-group.full {
-                grid-column: 1 / -1;
-            }
         }
 
-        /* ===== PRINT ===== */
         @media print {
             .top-header {
                 position: static;
@@ -642,12 +613,8 @@
             .card-total {
                 border: 1px solid #ddd !important;
             }
-            .top-header .install-btn {
-                display: none !important;
-            }
         }
 
-        /* ===== SCROLLBAR ===== */
         .tbl-wrap::-webkit-scrollbar {
             height: 4px;
         }
@@ -659,35 +626,27 @@
             background: #c1c7cd;
             border-radius: 4px;
         }
-        .tbl-wrap::-webkit-scrollbar-thumb:hover {
-            background: #a0a7ae;
-        }
     </style>
 </head>
 <body>
 
-    <!-- ===== HEADER ===== -->
     <header class="top-header">
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
             <h2 class="page-title">📊 Penjualan <span>Laporan</span></h2>
         </div>
         <div class="user-info">
             <span>📅 <span id="currentDate"></span></span>
-            <span class="badge">Admin</span>
-            <button class="install-btn" id="installBtn" onclick="installApp()">📲 Install</button>
+            <span class="badge" id="dataStatus">Belum ada data</span>
         </div>
     </header>
 
-    <!-- ===== CONTENT ===== -->
     <div class="content-area">
 
-        <!-- ===== DASH HEADER ===== -->
         <div class="dash-header">
             <div class="dash-title">📋 Ringkasan Penjualan</div>
             <span class="badge-periode" id="badge-periode">0 transaksi</span>
         </div>
 
-        <!-- ===== CARDS ===== -->
         <div class="cards-total" id="cardsContainer">
             <div class="card-total">
                 <div class="card-label">💰 Total</div>
@@ -709,10 +668,8 @@
                 <div class="card-label">📋 Faktur</div>
                 <div class="card-val" id="total-faktur">0</div>
             </div>
-            <!-- CARD SALES di-generate JS -->
         </div>
 
-        <!-- ===== FILTER BAR ===== -->
         <div class="filter-bar">
             <div class="filter-group">
                 <label>👤 Sales</label>
@@ -754,7 +711,6 @@
             </div>
         </div>
 
-        <!-- ===== TABLE ===== -->
         <div class="section-title">📅 Detail Penjualan <span class="sub" id="totalDataInfo"></span></div>
         <div class="tbl-wrap">
             <table>
@@ -777,7 +733,7 @@
                     <tr>
                         <td colspan="11" class="no-data">
                             <span class="icon">📂</span>
-                            Upload file Excel Master Penjualan
+                            Upload file Excel atau Load dari GitHub
                         </td>
                     </tr>
                 </tbody>
@@ -787,7 +743,9 @@
 
         <!-- ===== FOOTER ===== -->
         <div class="footer-actions">
-            <div class="upload-mini" id="drop-zone" onclick="document.getElementById('fileInput').click()">
+            <input type="text" class="url-input" id="githubUrl" placeholder="🔗 Paste URL raw GitHub (contoh: https://raw.githubusercontent.com/.../data.xlsx)" value="https://raw.githubusercontent.com/username/repo/main/data.xlsx">
+            <button class="btn btn-load" onclick="loadFromGitHub()">📥 Load dari GitHub</button>
+            <div class="upload-mini" onclick="document.getElementById('fileInput').click()">
                 📤 Upload Excel
             </div>
             <input type="file" id="fileInput" accept=".xlsx" class="hidden">
@@ -799,7 +757,6 @@
 
     </div>
 
-    <!-- ===== SCRIPTS ===== -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
     </script>
     <script>
@@ -816,29 +773,7 @@
         let dataPenjualan = [];
         let filteredData = [];
         let allProducts = [];
-        let deferredPrompt = null;
-
-        // ============================================================
-        // PWA INSTALL
-        // ============================================================
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            document.getElementById('installBtn').classList.add('show');
-        });
-
-        function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((result) => {
-                    if (result.outcome === 'accepted') {
-                        console.log('App installed');
-                    }
-                    deferredPrompt = null;
-                    document.getElementById('installBtn').classList.remove('show');
-                });
-            }
-        }
+        let currentDataUrl = '';
 
         // ============================================================
         // FORMATTER
@@ -881,12 +816,9 @@
         // ============================================================
         // PARSE EXCEL
         // ============================================================
-        function parseExcelPenjualan(wb) {
-            const ws = wb.Sheets[wb.SheetNames[0]];
-            const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-
+        function parseExcelPenjualan(dataArray) {
             const result = [];
-            const headers = data[0];
+            const headers = dataArray[0];
 
             const colIndex = (name) => {
                 return headers.findIndex(h =>
@@ -906,8 +838,8 @@
             const idxPembayaran = colIndex('Jenis Pembayaran');
             const idxProfit = colIndex('Profit');
 
-            for (let i = 1; i < data.length; i++) {
-                const row = data[i];
+            for (let i = 1; i < dataArray.length; i++) {
+                const row = dataArray[i];
                 if (!row || row.length === 0) continue;
                 if (String(row[0] || '').trim() === '') continue;
 
@@ -953,7 +885,64 @@
         }
 
         // ============================================================
-        // UPLOAD
+        // LOAD FROM GITHUB (RAW URL)
+        // ============================================================
+        async function loadFromGitHub() {
+            const url = document.getElementById('githubUrl').value.trim();
+            if (!url) {
+                showErr('err-footer', 'Masukkan URL raw GitHub!');
+                return;
+            }
+
+            if (!url.includes('raw.githubusercontent.com') && !url.includes('raw.')) {
+                showErr('err-footer', '❌ URL harus RAW dari GitHub (bukan halaman web)');
+                return;
+            }
+
+            showSuccess('success-footer', '⏳ Mengambil data dari GitHub...');
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+                }
+
+                const arrayBuffer = await response.arrayBuffer();
+                const wb = XLSX.read(arrayBuffer, { type: 'array' });
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+                const result = parseExcelPenjualan(data);
+
+                if (result.length === 0) {
+                    showErr('err-footer', 'Data tidak ditemukan. Pastikan format Excel sesuai.');
+                    return;
+                }
+
+                dataPenjualan = result;
+                filteredData = [...dataPenjualan];
+                currentDataUrl = url;
+
+                updateFilterOptions();
+                renderAll();
+
+                document.getElementById('dataStatus').textContent = `✅ ${result.length} data dari GitHub`;
+                document.getElementById('dataStatus').style.color = '#16a34a';
+
+                showSuccess('success-footer',
+                    `✅ Berhasil load dari GitHub — ${result.length} baris data`
+                );
+
+            } catch (err) {
+                console.error('Error:', err);
+                showErr('err-footer', '❌ Gagal load: ' + err.message);
+                document.getElementById('dataStatus').textContent = '❌ Gagal load';
+                document.getElementById('dataStatus').style.color = '#dc2626';
+            }
+        }
+
+        // ============================================================
+        // UPLOAD FILE
         // ============================================================
         document.getElementById('fileInput').addEventListener('change', function(e) {
             if (!this.files[0]) return;
@@ -961,14 +950,14 @@
             this.value = '';
         });
 
-        document.getElementById('drop-zone').addEventListener('dragover', e => {
+        document.querySelector('.upload-mini').addEventListener('dragover', e => {
             e.preventDefault();
             e.target.style.background = '#e5e7eb';
         });
-        document.getElementById('drop-zone').addEventListener('dragleave', e => {
+        document.querySelector('.upload-mini').addEventListener('dragleave', e => {
             e.target.style.background = 'white';
         });
-        document.getElementById('drop-zone').addEventListener('drop', e => {
+        document.querySelector('.upload-mini').addEventListener('drop', e => {
             e.preventDefault();
             e.target.style.background = 'white';
             if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]);
@@ -979,7 +968,10 @@
             reader.onload = async (e) => {
                 try {
                     const wb = XLSX.read(e.target.result, { type: 'array' });
-                    const result = parseExcelPenjualan(wb);
+                    const ws = wb.Sheets[wb.SheetNames[0]];
+                    const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+                    const result = parseExcelPenjualan(data);
 
                     if (result.length === 0) {
                         showErr('err-footer', 'Data tidak ditemukan. Pastikan format Excel sesuai.');
@@ -988,12 +980,17 @@
 
                     dataPenjualan = result;
                     filteredData = [...dataPenjualan];
+                    currentDataUrl = '';
 
                     updateFilterOptions();
+                    renderAll();
+
+                    document.getElementById('dataStatus').textContent = `✅ ${result.length} data dari upload`;
+                    document.getElementById('dataStatus').style.color = '#16a34a';
+
                     showSuccess('success-footer',
                         `✅ Berhasil upload ${file.name} — ${result.length} baris data`
                     );
-                    renderAll();
                 } catch (err) {
                     console.error('Error:', err);
                     showErr('err-footer', 'Gagal membaca: ' + err.message);
@@ -1101,7 +1098,7 @@
                 salesMap[sales].count += 1;
             });
 
-            // ===== RENDER CARDS =====
+            // Cards
             let cardsHtml = `
                 <div class="card-total">
                     <div class="card-label">💰 Total</div>
@@ -1146,7 +1143,7 @@
 
             document.getElementById('cardsContainer').innerHTML = cardsHtml;
 
-            // ===== RENDER TABLE =====
+            // Table
             let html = '';
             if (data.length === 0) {
                 html = `<tr><td colspan="11" class="no-data"><span class="icon">📂</span>Tidak ada data</td></tr>`;
@@ -1175,7 +1172,6 @@
 
             document.getElementById('penjualanBody').innerHTML = html;
 
-            // Footer
             const footerHtml = data.length === 0 ? '' : `<tr class="total-row">
                 <td colspan="4"><strong>TOTAL</strong></td>
                 <td></td>
@@ -1349,6 +1345,18 @@
         document.getElementById('filterSales').addEventListener('change', applyFilter);
         document.getElementById('filterPayment').addEventListener('change', applyFilter);
         document.getElementById('filterProduk').addEventListener('change', applyFilter);
+
+        // Load from GitHub with Enter key
+        document.getElementById('githubUrl').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                loadFromGitHub();
+            }
+        });
+
+        console.log('📊 Laporan Penjualan siap!');
+        console.log('📌 Cara pakai:');
+        console.log('1. Upload Excel → data lokal');
+        console.log('2. Load dari GitHub → data online (bisa diakses semua perangkat)');
     </script>
 
 </body>
