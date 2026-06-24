@@ -72,6 +72,22 @@
             color: #1d4ed8;
         }
 
+        /* ===== TOMBOL SETUP DI HEADER ===== */
+        .btn-header-setup {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-header-setup:hover {
+            opacity: 0.9;
+        }
+
         .content-area {
             padding: 10px 12px 30px;
             max-width: 1400px;
@@ -438,6 +454,8 @@
         .footer-actions .btn-sync:hover {
             opacity: 0.9;
         }
+
+        /* Tombol Setup Cloud di footer tetap ada tapi disembunyikan di HP */
         .footer-actions .btn-setup {
             background: #6b7280;
             color: white;
@@ -620,6 +638,7 @@
             width: auto;
         }
 
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 640px) {
             .top-header {
                 padding: 4px 10px;
@@ -636,6 +655,10 @@
             .top-header .user-info {
                 font-size: 9px;
                 gap: 4px;
+            }
+            .btn-header-setup {
+                font-size: 9px;
+                padding: 2px 8px;
             }
 
             .content-area {
@@ -751,6 +774,10 @@
                 padding: 3px 8px;
                 min-width: 80px;
             }
+            /* Sembunyikan tombol Setup di footer pada HP biar tidak dobel */
+            .footer-actions .btn-setup {
+                display: none;
+            }
             .err,
             .success,
             .info {
@@ -840,6 +867,9 @@
             .pagination-controls {
                 display: none !important;
             }
+            .btn-header-setup {
+                display: none !important;
+            }
         }
 
         .tbl-wrap::-webkit-scrollbar {
@@ -877,9 +907,12 @@
 </head>
 <body>
 
+    <!-- ===== HEADER DENGAN TOMBOL SETUP ===== -->
     <header class="top-header">
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
             <h2 class="page-title">📊 Penjualan <span>Laporan</span></h2>
+            <!-- ===== TOMBOL SETUP CLOUD DI HEADER ===== -->
+            <button class="btn-header-setup" onclick="toggleCloudSetup()">⚙️ Setup Cloud</button>
         </div>
         <div class="user-info">
             <span>📅 <span id="currentDate"></span></span>
@@ -1029,6 +1062,7 @@
             <button class="btn btn-print" onclick="printLaporan()">🖨️ Print</button>
             <button class="btn btn-save" onclick="saveExcel()">💾 Simpan Excel</button>
             <button class="btn btn-clear" onclick="clearData()">🗑️ Hapus Data</button>
+            <!-- Tombol Setup di footer tetap ada (tapi di HP sembunyi) -->
             <button class="btn btn-setup" onclick="toggleCloudSetup()">⚙️ Setup Cloud</button>
             <span id="err-footer" class="err hidden"></span>
             <span id="success-footer" class="success hidden"></span>
@@ -2051,6 +2085,7 @@
         console.log('3. Sync → ambil data terbaru dari cloud');
         console.log('4. Semua perangkat bisa akses data yang sama!');
         console.log('📌 Pagination: 50 baris per halaman');
+        console.log('📌 Tombol Setup Cloud ada di header (atas)');
     </script>
 
 </body>
