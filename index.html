@@ -59,6 +59,14 @@
             font-size: 9px;
             font-weight: 600;
         }
+        .top-header .user-info .badge-success {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        .top-header .user-info .badge-warning {
+            background: #fef3c7;
+            color: #d97706;
+        }
 
         .content-area {
             padding: 10px 12px 30px;
@@ -90,6 +98,10 @@
             padding: 2px 10px;
             border-radius: 20px;
             font-weight: 500;
+        }
+        .dash-header .last-update {
+            font-size: 9px;
+            color: #6b7280;
         }
 
         .cards-total {
@@ -340,7 +352,6 @@
             margin-bottom: 4px;
         }
 
-        /* ===== FOOTER ===== */
         .footer-actions {
             display: flex;
             align-items: center;
@@ -402,6 +413,13 @@
         .footer-actions .btn-load:hover {
             opacity: 0.9;
         }
+        .footer-actions .btn-clear {
+            background: #dc2626;
+            color: white;
+        }
+        .footer-actions .btn-clear:hover {
+            opacity: 0.9;
+        }
 
         .hidden {
             display: none !important;
@@ -433,7 +451,6 @@
             background: white;
         }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 640px) {
             .top-header {
                 padding: 4px 10px;
@@ -466,6 +483,9 @@
             .dash-header .badge-periode {
                 font-size: 9px;
                 padding: 1px 8px;
+            }
+            .dash-header .last-update {
+                font-size: 8px;
             }
 
             .cards-total {
@@ -626,6 +646,27 @@
             background: #c1c7cd;
             border-radius: 4px;
         }
+
+        /* Loader */
+        .loader {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #e5e7eb;
+            border-top: 2px solid #2a5298;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 <body>
@@ -644,7 +685,10 @@
 
         <div class="dash-header">
             <div class="dash-title">📋 Ringkasan Penjualan</div>
-            <span class="badge-periode" id="badge-periode">0 transaksi</span>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span class="badge-periode" id="badge-periode">0 transaksi</span>
+                <span class="last-update" id="lastUpdate"></span>
+            </div>
         </div>
 
         <div class="cards-total" id="cardsContainer">
@@ -743,14 +787,15 @@
 
         <!-- ===== FOOTER ===== -->
         <div class="footer-actions">
-            <input type="text" class="url-input" id="githubUrl" placeholder="🔗 Paste URL raw GitHub (contoh: https://raw.githubusercontent.com/.../data.xlsx)" value="https://raw.githubusercontent.com/username/repo/main/data.xlsx">
-            <button class="btn btn-load" onclick="loadFromGitHub()">📥 Load dari GitHub</button>
+            <input type="text" class="url-input" id="githubUrl" placeholder="🔗 Paste URL raw GitHub (contoh: https://raw.githubusercontent.com/.../data.xlsx)">
+            <button class="btn btn-load" onclick="loadFromGitHub()">📥 Load GitHub</button>
             <div class="upload-mini" onclick="document.getElementById('fileInput').click()">
                 📤 Upload Excel
             </div>
             <input type="file" id="fileInput" accept=".xlsx" class="hidden">
             <button class="btn btn-print" onclick="printLaporan()">🖨️ Print</button>
             <button class="btn btn-save" onclick="saveExcel()">💾 Simpan Excel</button>
+            <button class="btn btn-clear" onclick="clearData()">🗑️ Hapus Data</button>
             <span id="err-footer" class="err hidden"></span>
             <span id="success-footer" class="success hidden"></span>
         </div>
@@ -773,7 +818,71 @@
         let dataPenjualan = [];
         let filteredData = [];
         let allProducts = [];
-        let currentDataUrl = '';
+
+        const STORAGE_KEY = 'gajahmas_penjualan_data';
+        const STORAGE_TIME_KEY = 'gajahmas_penjualan_time';
+
+        // ============================================================
+        // LOCAL STORAGE
+        // ============================================================
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(dataPenjualan));
+                localStorage.setItem(STORAGE_TIME_KEY, new Date().toISOString());
+                updateLastUpdate();
+            } catch (e) {
+                console.warn('Gagal save ke localStorage:', e);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    dataPenjualan = JSON.parse(saved);
+                    filteredData = [...dataPenjualan];
+                    updateFilterOptions();
+                    renderAll();
+                    updateLastUpdate();
+                    document.getElementById('dataStatus').textContent = `💾 ${dataPenjualan.length} data (cache)`;
+                    document.getElementById('dataStatus').className = 'badge badge-success';
+                    return true;
+                }
+            } catch (e) {
+                console.warn('Gagal load dari localStorage:', e);
+            }
+            return false;
+        }
+
+        function updateLastUpdate() {
+            const time = localStorage.getItem(STORAGE_TIME_KEY);
+            if (time) {
+                const date = new Date(time);
+                document.getElementById('lastUpdate').textContent =
+                    `🔄 Update: ${date.toLocaleDateString('id-ID')} ${date.toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'})}`;
+            } else {
+                document.getElementById('lastUpdate').textContent = '';
+            }
+        }
+
+        function clearData() {
+            if (dataPenjualan.length === 0) {
+                showErr('err-footer', 'Tidak ada data untuk dihapus');
+                return;
+            }
+
+            if (confirm('Yakin ingin menghapus semua data?')) {
+                dataPenjualan = [];
+                filteredData = [];
+                localStorage.removeItem(STORAGE_KEY);
+                localStorage.removeItem(STORAGE_TIME_KEY);
+                renderAll();
+                document.getElementById('dataStatus').textContent = '🗑️ Data dihapus';
+                document.getElementById('dataStatus').className = 'badge badge-warning';
+                document.getElementById('lastUpdate').textContent = '';
+                showSuccess('success-footer', '🗑️ Data berhasil dihapus!');
+            }
+        }
 
         // ============================================================
         // FORMATTER
@@ -885,7 +994,7 @@
         }
 
         // ============================================================
-        // LOAD FROM GITHUB (RAW URL)
+        // LOAD FROM GITHUB
         // ============================================================
         async function loadFromGitHub() {
             const url = document.getElementById('githubUrl').value.trim();
@@ -921,443 +1030,17 @@
 
                 dataPenjualan = result;
                 filteredData = [...dataPenjualan];
-                currentDataUrl = url;
 
                 updateFilterOptions();
                 renderAll();
+                saveToLocalStorage();
 
                 document.getElementById('dataStatus').textContent = `✅ ${result.length} data dari GitHub`;
-                document.getElementById('dataStatus').style.color = '#16a34a';
+                document.getElementById('dataStatus').className = 'badge badge-success';
 
                 showSuccess('success-footer',
                     `✅ Berhasil load dari GitHub — ${result.length} baris data`
                 );
 
             } catch (err) {
-                console.error('Error:', err);
-                showErr('err-footer', '❌ Gagal load: ' + err.message);
-                document.getElementById('dataStatus').textContent = '❌ Gagal load';
-                document.getElementById('dataStatus').style.color = '#dc2626';
-            }
-        }
-
-        // ============================================================
-        // UPLOAD FILE
-        // ============================================================
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            if (!this.files[0]) return;
-            processFile(this.files[0]);
-            this.value = '';
-        });
-
-        document.querySelector('.upload-mini').addEventListener('dragover', e => {
-            e.preventDefault();
-            e.target.style.background = '#e5e7eb';
-        });
-        document.querySelector('.upload-mini').addEventListener('dragleave', e => {
-            e.target.style.background = 'white';
-        });
-        document.querySelector('.upload-mini').addEventListener('drop', e => {
-            e.preventDefault();
-            e.target.style.background = 'white';
-            if (e.dataTransfer.files[0]) processFile(e.dataTransfer.files[0]);
-        });
-
-        async function processFile(file) {
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                try {
-                    const wb = XLSX.read(e.target.result, { type: 'array' });
-                    const ws = wb.Sheets[wb.SheetNames[0]];
-                    const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-
-                    const result = parseExcelPenjualan(data);
-
-                    if (result.length === 0) {
-                        showErr('err-footer', 'Data tidak ditemukan. Pastikan format Excel sesuai.');
-                        return;
-                    }
-
-                    dataPenjualan = result;
-                    filteredData = [...dataPenjualan];
-                    currentDataUrl = '';
-
-                    updateFilterOptions();
-                    renderAll();
-
-                    document.getElementById('dataStatus').textContent = `✅ ${result.length} data dari upload`;
-                    document.getElementById('dataStatus').style.color = '#16a34a';
-
-                    showSuccess('success-footer',
-                        `✅ Berhasil upload ${file.name} — ${result.length} baris data`
-                    );
-                } catch (err) {
-                    console.error('Error:', err);
-                    showErr('err-footer', 'Gagal membaca: ' + err.message);
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        // ============================================================
-        // FILTER OPTIONS
-        // ============================================================
-        function updateFilterOptions() {
-            // Sales
-            const salesSet = new Set();
-            dataPenjualan.forEach(d => { if (d.sales) salesSet.add(d.sales); });
-            const selectSales = document.getElementById('filterSales');
-            selectSales.innerHTML = '<option value="all">Semua</option>';
-            Array.from(salesSet).sort().forEach(s => {
-                selectSales.innerHTML += `<option value="${s}">${s}</option>`;
-            });
-
-            // Products
-            const productSet = new Set();
-            dataPenjualan.forEach(d => { if (d.produk) productSet.add(d.produk); });
-            allProducts = Array.from(productSet).sort();
-            const selectProduk = document.getElementById('filterProduk');
-            selectProduk.innerHTML = '<option value="all" selected>Semua</option>';
-            allProducts.forEach(p => {
-                selectProduk.innerHTML += `<option value="${p}">${p}</option>`;
-            });
-        }
-
-        // ============================================================
-        // FILTER
-        // ============================================================
-        function getSelectedProducts() {
-            const select = document.getElementById('filterProduk');
-            const selected = [];
-            for (let i = 0; i < select.options.length; i++) {
-                if (select.options[i].selected) {
-                    selected.push(select.options[i].value);
-                }
-            }
-            return selected;
-        }
-
-        function applyFilter() {
-            const sales = document.getElementById('filterSales').value;
-            const payment = document.getElementById('filterPayment').value;
-            const dateFrom = document.getElementById('filterDateFrom').value;
-            const dateTo = document.getElementById('filterDateTo').value;
-            const selectedProducts = getSelectedProducts();
-            const isAllProducts = selectedProducts.includes('all') || selectedProducts.length === 0;
-
-            filteredData = dataPenjualan.filter(d => {
-                if (sales !== 'all' && d.sales !== sales) return false;
-                if (payment !== 'all' && d.pembayaran !== payment) return false;
-                if (dateFrom && d.tanggal < dateFrom) return false;
-                if (dateTo && d.tanggal > dateTo) return false;
-                if (!isAllProducts && !selectedProducts.includes(d.produk)) return false;
-                return true;
-            });
-
-            renderAll();
-            showSuccess('success-footer', `✅ Filter diterapkan — ${filteredData.length} data ditampilkan`);
-        }
-
-        function resetFilter() {
-            document.getElementById('filterSales').value = 'all';
-            document.getElementById('filterPayment').value = 'all';
-            document.getElementById('filterDateFrom').value = '';
-            document.getElementById('filterDateTo').value = '';
-            const selectProduk = document.getElementById('filterProduk');
-            for (let i = 0; i < selectProduk.options.length; i++) {
-                selectProduk.options[i].selected = (selectProduk.options[i].value === 'all');
-            }
-            filteredData = [...dataPenjualan];
-            renderAll();
-            showSuccess('success-footer', '↺ Filter direset');
-        }
-
-        // ============================================================
-        // RENDER
-        // ============================================================
-        function renderAll() {
-            const data = filteredData;
-
-            let totalNominal = 0;
-            let totalCash = 0;
-            let totalTempo = 0;
-            const fakturSet = new Set();
-
-            const salesMap = {};
-            data.forEach(d => {
-                totalNominal += d.nominal || 0;
-                if (d.pembayaran === 'Cash') totalCash += d.nominal || 0;
-                if (d.pembayaran === 'Tempo') totalTempo += d.nominal || 0;
-                if (d.faktur) fakturSet.add(d.faktur);
-
-                const sales = d.sales || 'Unknown';
-                if (!salesMap[sales]) {
-                    salesMap[sales] = { total: 0, count: 0 };
-                }
-                salesMap[sales].total += d.nominal || 0;
-                salesMap[sales].count += 1;
-            });
-
-            // Cards
-            let cardsHtml = `
-                <div class="card-total">
-                    <div class="card-label">💰 Total</div>
-                    <div class="card-val total-main">${fmtRupiah(totalNominal)}</div>
-                </div>
-                <div class="card-total">
-                    <div class="card-label">📌 Cash</div>
-                    <div class="card-val">${fmtRupiah(totalCash)}</div>
-                </div>
-                <div class="card-total">
-                    <div class="card-label">🧾 Tempo</div>
-                    <div class="card-val">${fmtRupiah(totalTempo)}</div>
-                </div>
-                <div class="card-total">
-                    <div class="card-label">📦 Transaksi</div>
-                    <div class="card-val">${data.length}</div>
-                </div>
-                <div class="card-total">
-                    <div class="card-label">📋 Faktur</div>
-                    <div class="card-val">${fakturSet.size}</div>
-                </div>
-            `;
-
-            const sortedSales = Object.keys(salesMap).sort();
-            sortedSales.forEach(sales => {
-                const s = salesMap[sales];
-                const colorClass = salesColors[sales] || 'unknown';
-                const colorMap = {
-                    'raju': '#1d4ed8',
-                    'hafid': '#059669',
-                    'jossy': '#d97706',
-                    'unknown': '#6b7280'
-                };
-                cardsHtml += `
-                    <div class="card-total sales-card" style="border-left-color: ${colorMap[colorClass] || '#6b7280'}">
-                        <div class="card-label">👤 ${sales}</div>
-                        <div class="card-val sales-name">${fmtRupiah(s.total)}</div>
-                        <div class="sub-text">${s.count} transaksi</div>
-                    </div>
-                `;
-            });
-
-            document.getElementById('cardsContainer').innerHTML = cardsHtml;
-
-            // Table
-            let html = '';
-            if (data.length === 0) {
-                html = `<tr><td colspan="11" class="no-data"><span class="icon">📂</span>Tidak ada data</td></tr>`;
-            } else {
-                data.forEach(d => {
-                    const tgl = d.tanggal ? d.tanggal.split('-').reverse().join('/') : '-';
-                    const salesClass = salesColors[d.sales] || 'unknown';
-                    const isNegative = (d.nominal || 0) < 0;
-                    const isProfitNegative = (d.profit || 0) < 0;
-
-                    html += `<tr>
-                        <td><span class="badge-tgl">${tgl}</span></td>
-                        <td style="font-size:9px;">${d.faktur || '-'}</td>
-                        <td><span class="badge-sales ${salesClass}">${d.sales || '-'}</span></td>
-                        <td>${d.customer || '-'}</td>
-                        <td>${d.produk || '-'}</td>
-                        <td>${d.jml || 0}</td>
-                        <td>${d.satuan || '-'}</td>
-                        <td>${fmtRupiah(d.hargaJual || 0)}</td>
-                        <td class="${isNegative ? 'negative' : 'positive'}">${fmtRupiah(d.nominal || 0)}</td>
-                        <td>${d.pembayaran || '-'}</td>
-                        <td class="${isProfitNegative ? 'negative' : ''}">${fmtRupiah(d.profit || 0)}</td>
-                    </tr>`;
-                });
-            }
-
-            document.getElementById('penjualanBody').innerHTML = html;
-
-            const footerHtml = data.length === 0 ? '' : `<tr class="total-row">
-                <td colspan="4"><strong>TOTAL</strong></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td><strong>${fmtRupiah(totalNominal)}</strong></td>
-                <td></td>
-                <td></td>
-            </tr>`;
-            document.getElementById('penjualanFoot').innerHTML = footerHtml;
-
-            document.getElementById('badge-periode').textContent = data.length + ' transaksi';
-            document.getElementById('totalDataInfo').textContent = `(${data.length} data)`;
-        }
-
-        // ============================================================
-        // PRINT
-        // ============================================================
-        function printLaporan() {
-            if (filteredData.length === 0) {
-                alert('Tidak ada data untuk dicetak!');
-                return;
-            }
-
-            const printWindow = window.open('', '_blank', 'width=1200,height=800');
-            let rows = '';
-            filteredData.forEach(d => {
-                const tgl = d.tanggal ? d.tanggal.split('-').reverse().join('/') : '-';
-                rows += `<tr>
-                    <td>${tgl}</td>
-                    <td>${d.faktur || '-'}</td>
-                    <td>${d.sales || '-'}</td>
-                    <td>${d.customer || '-'}</td>
-                    <td>${d.produk || '-'}</td>
-                    <td>${d.jml || 0}</td>
-                    <td>${d.satuan || '-'}</td>
-                    <td>${fmtRupiah(d.hargaJual || 0)}</td>
-                    <td>${fmtRupiah(d.nominal || 0)}</td>
-                    <td>${d.pembayaran || '-'}</td>
-                    <td>${fmtRupiah(d.profit || 0)}</td>
-                </tr>`;
-            });
-
-            const totalNominal = filteredData.reduce((s, d) => s + (d.nominal || 0), 0);
-            const totalCash = filteredData.filter(d => d.pembayaran === 'Cash').reduce((s, d) => s + (d.nominal || 0), 0);
-            const totalTempo = filteredData.filter(d => d.pembayaran === 'Tempo').reduce((s, d) => s + (d.nominal || 0), 0);
-
-            const salesMap = {};
-            filteredData.forEach(d => {
-                const sales = d.sales || 'Unknown';
-                if (!salesMap[sales]) salesMap[sales] = 0;
-                salesMap[sales] += d.nominal || 0;
-            });
-            let salesSummaryHtml = '';
-            Object.keys(salesMap).sort().forEach(s => {
-                salesSummaryHtml += `<span class="summary-item">👤 ${s}: ${fmtRupiah(salesMap[s])}</span>`;
-            });
-
-            printWindow.document.write(`
-                <html>
-                <head>
-                    <title>Laporan Penjualan</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; padding: 15px; font-size: 10px; }
-                        h2 { text-align: center; border-bottom: 2px solid #333; padding-bottom: 8px; }
-                        .summary { display: flex; gap: 8px; margin: 8px 0; flex-wrap: wrap; }
-                        .summary-item { padding: 3px 10px; background: #f0f0f0; border-radius: 4px; }
-                        .sales-summary { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
-                        .sales-item { padding: 3px 10px; background: #e8f0fe; border-radius: 4px; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 9px; }
-                        th, td { border: 1px solid #ddd; padding: 3px 5px; text-align: right; }
-                        th { background: #f0f0f0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                        th:first-child, th:nth-child(2), th:nth-child(3), th:nth-child(4) { text-align: left; }
-                        td:first-child, td:nth-child(2), td:nth-child(3), td:nth-child(4) { text-align: left; }
-                        .footer { margin-top: 15px; text-align: center; font-size: 9px; color: #999; }
-                        tfoot td { font-weight: bold; background: #f4faff; }
-                    </style>
-                </head>
-                <body>
-                    <h2>📊 LAPORAN PENJUALAN</h2>
-                    <div class="summary">
-                        <span class="summary-item">💰 TOTAL: ${fmtRupiah(totalNominal)}</span>
-                        <span class="summary-item">📌 CASH: ${fmtRupiah(totalCash)}</span>
-                        <span class="summary-item">🧾 TEMPO: ${fmtRupiah(totalTempo)}</span>
-                        <span class="summary-item">📦 TRANSAKSI: ${filteredData.length}</span>
-                    </div>
-                    <div class="sales-summary">${salesSummaryHtml}</div>
-                    <table>
-                        <thead><tr>
-                            <th>Tanggal</th><th>No. Faktur</th><th>Sales</th><th>Customer</th>
-                            <th>Produk</th><th>Jml</th><th>Satuan</th><th>Harga Jual</th>
-                            <th>Nominal</th><th>Pembayaran</th><th>Profit</th>
-                        </tr></thead>
-                        <tbody>${rows}</tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="8">TOTAL</td>
-                                <td>${fmtRupiah(totalNominal)}</td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                    <p class="footer">Dicetak: ${new Date().toLocaleString('id-ID')}</p>
-                    <script>
-                        window.onload = function() { window.print(); }
-                    <\/script>
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-        }
-
-        // ============================================================
-        // SAVE EXCEL
-        // ============================================================
-        function saveExcel() {
-            if (filteredData.length === 0) {
-                alert('Tidak ada data untuk disimpan!');
-                return;
-            }
-
-            const excelData = [
-                ['Tanggal', 'No. Faktur', 'Sales', 'Customer', 'Produk',
-                    'Jml', 'Satuan', 'Harga Jual', 'Nominal', 'Pembayaran', 'Profit'
-                ]
-            ];
-
-            filteredData.forEach(d => {
-                excelData.push([
-                    d.tanggal || '',
-                    d.faktur || '',
-                    d.sales || '',
-                    d.customer || '',
-                    d.produk || '',
-                    d.jml || 0,
-                    d.satuan || '',
-                    d.hargaJual || 0,
-                    d.nominal || 0,
-                    d.pembayaran || '',
-                    d.profit || 0
-                ]);
-            });
-
-            const totalNominal = filteredData.reduce((s, d) => s + (d.nominal || 0), 0);
-            excelData.push([
-                'TOTAL', '', '', '', '', '', '', '', totalNominal, '', ''
-            ]);
-
-            const ws = XLSX.utils.aoa_to_sheet(excelData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Laporan Penjualan');
-            XLSX.writeFile(wb, `Laporan_Penjualan_${new Date().toISOString().split('T')[0]}.xlsx`);
-            showSuccess('success-footer', '✅ File berhasil disimpan!');
-        }
-
-        // ============================================================
-        // INIT
-        // ============================================================
-        renderAll();
-
-        setInterval(() => {
-            document.getElementById('success-footer')?.classList.add('hidden');
-            document.getElementById('err-footer')?.classList.add('hidden');
-        }, 6000);
-
-        // Auto-filter
-        document.getElementById('filterDateFrom').addEventListener('change', applyFilter);
-        document.getElementById('filterDateTo').addEventListener('change', applyFilter);
-        document.getElementById('filterSales').addEventListener('change', applyFilter);
-        document.getElementById('filterPayment').addEventListener('change', applyFilter);
-        document.getElementById('filterProduk').addEventListener('change', applyFilter);
-
-        // Load from GitHub with Enter key
-        document.getElementById('githubUrl').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                loadFromGitHub();
-            }
-        });
-
-        console.log('📊 Laporan Penjualan siap!');
-        console.log('📌 Cara pakai:');
-        console.log('1. Upload Excel → data lokal');
-        console.log('2. Load dari GitHub → data online (bisa diakses semua perangkat)');
-    </script>
-
-</body>
-</html>
+                console.error('Error:',
