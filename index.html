@@ -356,7 +356,6 @@
             margin-bottom: 4px;
         }
 
-        /* ===== FOOTER ===== */
         .footer-actions {
             display: flex;
             align-items: center;
@@ -439,6 +438,13 @@
         .footer-actions .btn-sync:hover {
             opacity: 0.9;
         }
+        .footer-actions .btn-setup {
+            background: #6b7280;
+            color: white;
+        }
+        .footer-actions .btn-setup:hover {
+            opacity: 0.9;
+        }
 
         .hidden {
             display: none !important;
@@ -487,7 +493,6 @@
             background: white;
         }
 
-        /* ===== CLOUD SETUP ===== */
         .cloud-setup {
             background: white;
             border: 1px solid #dbeafe;
@@ -509,11 +514,12 @@
             gap: 6px;
             flex-wrap: wrap;
             align-items: center;
+            margin-bottom: 4px;
         }
         .cloud-setup .row label {
             font-size: 10px;
             color: #6b7280;
-            min-width: 80px;
+            min-width: 70px;
         }
         .cloud-setup .row input {
             flex: 1;
@@ -969,12 +975,12 @@
             </div>
             <input type="file" id="fileInput" accept=".xlsx,.xls" class="hidden">
 
-            <button class="btn btn-cloud" onclick="uploadToCloud()">☁️ Upload ke Cloud</button>
+            <button class="btn btn-cloud" onclick="uploadToCloud()">☁️ Upload Cloud</button>
             <button class="btn btn-sync" onclick="syncFromCloud()">🔄 Sync</button>
             <button class="btn btn-print" onclick="printLaporan()">🖨️ Print</button>
             <button class="btn btn-save" onclick="saveExcel()">💾 Simpan Excel</button>
             <button class="btn btn-clear" onclick="clearData()">🗑️ Hapus Data</button>
-            <button class="btn" style="background:#6b7280;color:white;" onclick="toggleCloudSetup()">⚙️ Setup Cloud</button>
+            <button class="btn btn-setup" onclick="toggleCloudSetup()">⚙️ Setup Cloud</button>
             <span id="err-footer" class="err hidden"></span>
             <span id="success-footer" class="success hidden"></span>
             <span id="info-footer" class="info hidden"></span>
@@ -1082,14 +1088,12 @@
                 return;
             }
 
-            // Load config
             loadCloudConfig();
             if (!cloudConfig.token || !cloudConfig.repo) {
                 showErr('err-footer', '⚠️ Setup cloud dulu! Klik "⚙️ Setup Cloud"');
                 return;
             }
 
-            // Konversi data ke Excel
             const excelData = [
                 ['Tanggal', 'No. Faktur', 'Sales', 'Customer', 'Produk',
                     'Jml', 'Satuan', 'Harga Jual', 'Nominal', 'Pembayaran', 'Profit'
@@ -1117,7 +1121,6 @@
             XLSX.utils.book_append_sheet(wb, ws, 'Laporan Penjualan');
             const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
 
-            // Convert to base64
             const base64 = btoa(
                 new Uint8Array(wbout).reduce(
                     (data, byte) => data + String.fromCharCode(byte),
@@ -1128,7 +1131,6 @@
             showSuccess('success-footer', '⏳ Mengupload ke GitHub...');
 
             try {
-                // Cek file existing
                 const checkUrl = `https://api.github.com/repos/${cloudConfig.repo}/contents/${cloudConfig.file}`;
                 let sha = null;
 
@@ -1145,7 +1147,6 @@
                     }
                 } catch (e) {}
 
-                // Upload file
                 const uploadData = {
                     message: `Update data ${new Date().toLocaleString('id-ID')}`,
                     content: base64,
@@ -1191,7 +1192,6 @@
                 showErr('err-footer', '⚠️ Setup cloud dulu! Klik "⚙️ Setup Cloud"');
                 return;
             }
-
             await loadFromGitHubUrl(cloudConfig.rawUrl);
         }
 
