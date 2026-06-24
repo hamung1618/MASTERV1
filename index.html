@@ -67,6 +67,10 @@
             background: #fef3c7;
             color: #d97706;
         }
+        .top-header .user-info .badge-cloud {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
 
         .content-area {
             padding: 10px 12px 30px;
@@ -352,6 +356,7 @@
             margin-bottom: 4px;
         }
 
+        /* ===== FOOTER ===== */
         .footer-actions {
             display: flex;
             align-items: center;
@@ -413,11 +418,25 @@
         .footer-actions .btn-load:hover {
             opacity: 0.9;
         }
+        .footer-actions .btn-cloud {
+            background: #1d4ed8;
+            color: white;
+        }
+        .footer-actions .btn-cloud:hover {
+            opacity: 0.9;
+        }
         .footer-actions .btn-clear {
             background: #dc2626;
             color: white;
         }
         .footer-actions .btn-clear:hover {
+            opacity: 0.9;
+        }
+        .footer-actions .btn-sync {
+            background: #059669;
+            color: white;
+        }
+        .footer-actions .btn-sync:hover {
             opacity: 0.9;
         }
 
@@ -440,6 +459,14 @@
             font-size: 11px;
             width: 100%;
         }
+        .info {
+            background: #dbeafe;
+            color: #1d4ed8;
+            border-radius: 4px;
+            padding: 4px 10px;
+            font-size: 11px;
+            width: 100%;
+        }
 
         .footer-actions .url-input {
             flex: 2;
@@ -450,8 +477,91 @@
             font-size: 10px;
             background: white;
         }
+        .footer-actions .url-input-small {
+            flex: 1;
+            min-width: 100px;
+            padding: 4px 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 10px;
+            background: white;
+        }
 
-        /* DEBUG */
+        /* ===== CLOUD SETUP ===== */
+        .cloud-setup {
+            background: white;
+            border: 1px solid #dbeafe;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .cloud-setup.show {
+            display: block;
+        }
+        .cloud-setup h4 {
+            font-size: 11px;
+            color: #1d4ed8;
+            margin-bottom: 8px;
+        }
+        .cloud-setup .row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .cloud-setup .row label {
+            font-size: 10px;
+            color: #6b7280;
+            min-width: 80px;
+        }
+        .cloud-setup .row input {
+            flex: 1;
+            padding: 4px 8px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 10px;
+            min-width: 150px;
+        }
+        .cloud-setup .row .btn {
+            padding: 4px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        .cloud-setup .row .btn-primary {
+            background: #1d4ed8;
+            color: white;
+        }
+        .cloud-setup .row .btn-primary:hover {
+            opacity: 0.9;
+        }
+        .cloud-setup .row .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+        .cloud-setup .row .btn-danger:hover {
+            opacity: 0.9;
+        }
+        .cloud-setup .status {
+            font-size: 10px;
+            color: #6b7280;
+            margin-top: 6px;
+            padding: 4px 10px;
+            background: #f9fafb;
+            border-radius: 4px;
+        }
+        .cloud-setup .status.success {
+            color: #16a34a;
+            background: #dcfce7;
+        }
+        .cloud-setup .status.error {
+            color: #dc2626;
+            background: #fee2e2;
+        }
+
         .debug-info {
             background: #1e1e1e;
             color: #00ff41;
@@ -596,13 +706,15 @@
                 padding: 3px 8px;
                 min-width: 50px;
             }
-            .footer-actions .url-input {
+            .footer-actions .url-input,
+            .footer-actions .url-input-small {
                 font-size: 9px;
                 padding: 3px 8px;
-                min-width: 100px;
+                min-width: 80px;
             }
             .err,
-            .success {
+            .success,
+            .info {
                 font-size: 10px;
                 padding: 3px 8px;
             }
@@ -619,6 +731,18 @@
                 font-size: 8px;
                 max-height: 80px;
                 padding: 4px 8px;
+            }
+
+            .cloud-setup {
+                padding: 8px 10px;
+            }
+            .cloud-setup .row input {
+                min-width: 100px;
+                font-size: 9px;
+            }
+            .cloud-setup .row label {
+                font-size: 9px;
+                min-width: 60px;
             }
         }
 
@@ -658,6 +782,9 @@
             .card-total {
                 border: 1px solid #ddd !important;
             }
+            .cloud-setup {
+                display: none !important;
+            }
         }
 
         .tbl-wrap::-webkit-scrollbar {
@@ -670,6 +797,26 @@
         .tbl-wrap::-webkit-scrollbar-thumb {
             background: #c1c7cd;
             border-radius: 4px;
+        }
+
+        .loader {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #e5e7eb;
+            border-top: 2px solid #2a5298;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
@@ -718,9 +865,28 @@
             </div>
         </div>
 
-        <!-- ===== DEBUG INFO ===== -->
+        <!-- ===== CLOUD SETUP ===== -->
+        <div class="cloud-setup" id="cloudSetup">
+            <h4>☁️ Setup Cloud (GitHub)</h4>
+            <div class="row">
+                <label>🔑 Token:</label>
+                <input type="password" id="githubToken" placeholder="Personal Access Token (classic)">
+                <button class="btn btn-primary" onclick="saveCloudConfig()">💾 Simpan</button>
+                <button class="btn btn-danger" onclick="clearCloudConfig()">🗑️ Hapus</button>
+            </div>
+            <div class="row" style="margin-top:6px;">
+                <label>📁 Repo:</label>
+                <input type="text" id="githubRepo" placeholder="username/nama-repo">
+                <label style="min-width:40px;">📄 File:</label>
+                <input type="text" id="githubFile" placeholder="data.xlsx" value="data.xlsx" style="flex:0.5;min-width:80px;">
+            </div>
+            <div class="status" id="cloudStatus">Belum dikonfigurasi</div>
+        </div>
+
+        <!-- ===== DEBUG ===== -->
         <div class="debug-info" id="debugInfo"></div>
 
+        <!-- ===== FILTER ===== -->
         <div class="filter-bar">
             <div class="filter-group">
                 <label>👤 Sales</label>
@@ -762,6 +928,7 @@
             </div>
         </div>
 
+        <!-- ===== TABLE ===== -->
         <div class="section-title">📅 Detail Penjualan <span class="sub" id="totalDataInfo"></span></div>
         <div class="tbl-wrap">
             <table>
@@ -784,7 +951,7 @@
                     <tr>
                         <td colspan="11" class="no-data">
                             <span class="icon">📂</span>
-                            Upload file Excel atau Load dari GitHub
+                            Upload Excel atau Load dari Cloud
                         </td>
                     </tr>
                 </tbody>
@@ -794,17 +961,23 @@
 
         <!-- ===== FOOTER ===== -->
         <div class="footer-actions">
-            <input type="text" class="url-input" id="githubUrl" placeholder="🔗 Paste URL raw GitHub">
+            <input type="text" class="url-input" id="githubUrl" placeholder="🔗 URL raw GitHub (https://raw.githubusercontent.com/.../data.xlsx)">
             <button class="btn btn-load" onclick="loadFromGitHub()">📥 Load GitHub</button>
+
             <div class="upload-mini" onclick="document.getElementById('fileInput').click()">
                 📤 Upload Excel
             </div>
             <input type="file" id="fileInput" accept=".xlsx,.xls" class="hidden">
+
+            <button class="btn btn-cloud" onclick="uploadToCloud()">☁️ Upload ke Cloud</button>
+            <button class="btn btn-sync" onclick="syncFromCloud()">🔄 Sync</button>
             <button class="btn btn-print" onclick="printLaporan()">🖨️ Print</button>
             <button class="btn btn-save" onclick="saveExcel()">💾 Simpan Excel</button>
             <button class="btn btn-clear" onclick="clearData()">🗑️ Hapus Data</button>
+            <button class="btn" style="background:#6b7280;color:white;" onclick="toggleCloudSetup()">⚙️ Setup Cloud</button>
             <span id="err-footer" class="err hidden"></span>
             <span id="success-footer" class="success hidden"></span>
+            <span id="info-footer" class="info hidden"></span>
         </div>
 
     </div>
@@ -825,25 +998,266 @@
         let dataPenjualan = [];
         let filteredData = [];
         let allProducts = [];
+        let cloudConfig = {};
 
         const STORAGE_KEY = 'gajahmas_penjualan_data';
         const STORAGE_TIME_KEY = 'gajahmas_penjualan_time';
+        const CLOUD_CONFIG_KEY = 'gajahmas_cloud_config';
 
-        function debugLog(msg) {
-            const el = document.getElementById('debugInfo');
-            if (el) {
-                el.classList.add('show');
-                el.textContent += msg + '\n';
-                el.scrollTop = el.scrollHeight;
-            }
-            console.log(msg);
+        // ============================================================
+        // CLOUD CONFIG
+        // ============================================================
+        function loadCloudConfig() {
+            try {
+                const saved = localStorage.getItem(CLOUD_CONFIG_KEY);
+                if (saved) {
+                    cloudConfig = JSON.parse(saved);
+                    document.getElementById('githubToken').value = cloudConfig.token || '';
+                    document.getElementById('githubRepo').value = cloudConfig.repo || '';
+                    document.getElementById('githubFile').value = cloudConfig.file || 'data.xlsx';
+                    document.getElementById('githubUrl').value = cloudConfig.rawUrl || '';
+                    updateCloudStatus('✅ Cloud terkonfigurasi', 'success');
+                    return true;
+                }
+            } catch (e) {}
+            return false;
         }
 
-        function clearDebug() {
-            const el = document.getElementById('debugInfo');
-            if (el) {
-                el.textContent = '';
-                el.classList.remove('show');
+        function saveCloudConfig() {
+            const token = document.getElementById('githubToken').value.trim();
+            const repo = document.getElementById('githubRepo').value.trim();
+            const file = document.getElementById('githubFile').value.trim() || 'data.xlsx';
+
+            if (!token || !repo) {
+                updateCloudStatus('❌ Token dan Repo wajib diisi!', 'error');
+                return;
+            }
+
+            cloudConfig = {
+                token: token,
+                repo: repo,
+                file: file,
+                rawUrl: `https://raw.githubusercontent.com/${repo}/main/${file}`
+            };
+
+            localStorage.setItem(CLOUD_CONFIG_KEY, JSON.stringify(cloudConfig));
+            document.getElementById('githubUrl').value = cloudConfig.rawUrl;
+            updateCloudStatus('✅ Cloud berhasil disimpan!', 'success');
+            showSuccess('success-footer', '☁️ Konfigurasi cloud berhasil disimpan!');
+        }
+
+        function clearCloudConfig() {
+            if (confirm('Yakin ingin menghapus konfigurasi cloud?')) {
+                localStorage.removeItem(CLOUD_CONFIG_KEY);
+                cloudConfig = {};
+                document.getElementById('githubToken').value = '';
+                document.getElementById('githubRepo').value = '';
+                document.getElementById('githubUrl').value = '';
+                updateCloudStatus('🗑️ Konfigurasi dihapus', '');
+                showSuccess('success-footer', '🗑️ Konfigurasi cloud dihapus!');
+            }
+        }
+
+        function updateCloudStatus(msg, type) {
+            const el = document.getElementById('cloudStatus');
+            el.textContent = msg;
+            el.className = 'status';
+            if (type) el.classList.add(type);
+        }
+
+        function toggleCloudSetup() {
+            const el = document.getElementById('cloudSetup');
+            el.classList.toggle('show');
+            if (el.classList.contains('show')) {
+                loadCloudConfig();
+            }
+        }
+
+        // ============================================================
+        // UPLOAD TO CLOUD (GitHub)
+        // ============================================================
+        async function uploadToCloud() {
+            if (dataPenjualan.length === 0) {
+                showErr('err-footer', 'Tidak ada data untuk diupload ke cloud!');
+                return;
+            }
+
+            // Load config
+            loadCloudConfig();
+            if (!cloudConfig.token || !cloudConfig.repo) {
+                showErr('err-footer', '⚠️ Setup cloud dulu! Klik "⚙️ Setup Cloud"');
+                return;
+            }
+
+            // Konversi data ke Excel
+            const excelData = [
+                ['Tanggal', 'No. Faktur', 'Sales', 'Customer', 'Produk',
+                    'Jml', 'Satuan', 'Harga Jual', 'Nominal', 'Pembayaran', 'Profit'
+                ]
+            ];
+
+            dataPenjualan.forEach(d => {
+                excelData.push([
+                    d.tanggal || '',
+                    d.faktur || '',
+                    d.sales || '',
+                    d.customer || '',
+                    d.produk || '',
+                    d.jml || 0,
+                    d.satuan || '',
+                    d.hargaJual || 0,
+                    d.nominal || 0,
+                    d.pembayaran || '',
+                    d.profit || 0
+                ]);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(excelData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Laporan Penjualan');
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+
+            // Convert to base64
+            const base64 = btoa(
+                new Uint8Array(wbout).reduce(
+                    (data, byte) => data + String.fromCharCode(byte),
+                    ''
+                )
+            );
+
+            showSuccess('success-footer', '⏳ Mengupload ke GitHub...');
+
+            try {
+                // Cek file existing
+                const checkUrl = `https://api.github.com/repos/${cloudConfig.repo}/contents/${cloudConfig.file}`;
+                let sha = null;
+
+                try {
+                    const checkRes = await fetch(checkUrl, {
+                        headers: {
+                            'Authorization': `token ${cloudConfig.token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    if (checkRes.ok) {
+                        const data = await checkRes.json();
+                        sha = data.sha;
+                    }
+                } catch (e) {}
+
+                // Upload file
+                const uploadData = {
+                    message: `Update data ${new Date().toLocaleString('id-ID')}`,
+                    content: base64,
+                    branch: 'main'
+                };
+                if (sha) uploadData.sha = sha;
+
+                const uploadRes = await fetch(checkUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${cloudConfig.token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/vnd.github.v3+json'
+                    },
+                    body: JSON.stringify(uploadData)
+                });
+
+                if (!uploadRes.ok) {
+                    const err = await uploadRes.json();
+                    throw new Error(err.message || 'Gagal upload');
+                }
+
+                const result = await uploadRes.json();
+                const rawUrl = `https://raw.githubusercontent.com/${cloudConfig.repo}/main/${cloudConfig.file}`;
+                document.getElementById('githubUrl').value = rawUrl;
+
+                showSuccess('success-footer', `✅ Berhasil upload ke cloud! ${dataPenjualan.length} data`);
+                document.getElementById('dataStatus').textContent = `☁️ ${dataPenjualan.length} data di cloud`;
+                document.getElementById('dataStatus').className = 'badge badge-cloud';
+
+            } catch (err) {
+                console.error('Error:', err);
+                showErr('err-footer', '❌ Gagal upload: ' + err.message);
+            }
+        }
+
+        // ============================================================
+        // SYNC FROM CLOUD
+        // ============================================================
+        async function syncFromCloud() {
+            loadCloudConfig();
+            if (!cloudConfig.rawUrl) {
+                showErr('err-footer', '⚠️ Setup cloud dulu! Klik "⚙️ Setup Cloud"');
+                return;
+            }
+
+            await loadFromGitHubUrl(cloudConfig.rawUrl);
+        }
+
+        // ============================================================
+        // LOAD FROM GITHUB
+        // ============================================================
+        async function loadFromGitHub() {
+            const url = document.getElementById('githubUrl').value.trim();
+            if (!url) {
+                showErr('err-footer', 'Masukkan URL raw GitHub!');
+                return;
+            }
+            await loadFromGitHubUrl(url);
+        }
+
+        async function loadFromGitHubUrl(url) {
+            clearDebug();
+            debugLog(`📥 Loading from: ${url}`);
+
+            showSuccess('success-footer', '⏳ Mengambil data dari GitHub...');
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+                }
+
+                const arrayBuffer = await response.arrayBuffer();
+                debugLog(`📦 File size: ${arrayBuffer.byteLength} bytes`);
+
+                const wb = XLSX.read(arrayBuffer, { type: 'array' });
+                debugLog(`📚 Sheets found: ${wb.SheetNames.join(', ')}`);
+
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+                debugLog(`📊 Data rows: ${data.length}`);
+
+                const result = parseExcelPenjualan(data);
+
+                if (result.length === 0) {
+                    showErr('err-footer', 'Data tidak ditemukan. Cek debug info.');
+                    debugLog('❌ Hasil parsing kosong!');
+                    return;
+                }
+
+                dataPenjualan = result;
+                filteredData = [...dataPenjualan];
+
+                updateFilterOptions();
+                renderAll();
+                saveToLocalStorage();
+
+                document.getElementById('dataStatus').textContent = `☁️ ${result.length} data dari cloud`;
+                document.getElementById('dataStatus').className = 'badge badge-cloud';
+
+                showSuccess('success-footer',
+                    `✅ Berhasil sync dari cloud — ${result.length} baris data`
+                );
+
+            } catch (err) {
+                console.error('Error:', err);
+                debugLog(`❌ ERROR: ${err.message}`);
+                showErr('err-footer', '❌ Gagal load: ' + err.message);
+                document.getElementById('dataStatus').textContent = '❌ Gagal sync';
+                document.getElementById('dataStatus').className = 'badge badge-warning';
             }
         }
 
@@ -896,7 +1310,7 @@
                 return;
             }
 
-            if (confirm('Yakin ingin menghapus semua data?')) {
+            if (confirm('Yakin ingin menghapus semua data lokal?')) {
                 dataPenjualan = [];
                 filteredData = [];
                 localStorage.removeItem(STORAGE_KEY);
@@ -905,8 +1319,29 @@
                 document.getElementById('dataStatus').textContent = '🗑️ Data dihapus';
                 document.getElementById('dataStatus').className = 'badge badge-warning';
                 document.getElementById('lastUpdate').textContent = '';
-                showSuccess('success-footer', '🗑️ Data berhasil dihapus!');
+                showSuccess('success-footer', '🗑️ Data lokal berhasil dihapus!');
                 clearDebug();
+            }
+        }
+
+        // ============================================================
+        // DEBUG
+        // ============================================================
+        function debugLog(msg) {
+            const el = document.getElementById('debugInfo');
+            if (el) {
+                el.classList.add('show');
+                el.textContent += msg + '\n';
+                el.scrollTop = el.scrollHeight;
+            }
+            console.log(msg);
+        }
+
+        function clearDebug() {
+            const el = document.getElementById('debugInfo');
+            if (el) {
+                el.textContent = '';
+                el.classList.remove('show');
             }
         }
 
@@ -938,6 +1373,7 @@
             el.textContent = msg;
             el.classList.remove('hidden');
             document.getElementById('success-footer')?.classList.add('hidden');
+            document.getElementById('info-footer')?.classList.add('hidden');
         }
 
         function showSuccess(id, msg) {
@@ -946,10 +1382,20 @@
             el.textContent = msg;
             el.classList.remove('hidden');
             document.getElementById('err-footer')?.classList.add('hidden');
+            document.getElementById('info-footer')?.classList.add('hidden');
+        }
+
+        function showInfo(id, msg) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = msg;
+            el.classList.remove('hidden');
+            document.getElementById('err-footer')?.classList.add('hidden');
+            document.getElementById('success-footer')?.classList.add('hidden');
         }
 
         // ============================================================
-        // PARSE EXCEL - AUTO DETECT KOLOM
+        // PARSE EXCEL
         // ============================================================
         function parseExcelPenjualan(dataArray) {
             const result = [];
@@ -964,7 +1410,6 @@
             debugLog('📋 HEADER DETECTED:');
             debugLog(JSON.stringify(headerStr, null, 2));
 
-            // Auto-detect kolom dengan berbagai kemungkinan nama
             const colIndex = (keywords) => {
                 for (let i = 0; i < headerStr.length; i++) {
                     const h = headerStr[i];
@@ -1000,11 +1445,9 @@
                 const row = dataArray[i];
                 if (!row || row.length === 0) continue;
 
-                // Skip baris kosong atau baris yang semua cell kosong
                 const hasData = row.some(cell => String(cell || '').trim() !== '');
                 if (!hasData) continue;
 
-                // Skip baris yang isinya "TOTAL" atau "total"
                 const firstCell = String(row[0] || '').trim().toLowerCase();
                 if (firstCell === 'total' || firstCell === 'grand total') continue;
 
@@ -1013,7 +1456,6 @@
                 const jml = parseFloat(String(row[idxJml] || '0').replace(/,/g, '')) || 0;
                 const hargaJual = parseFloat(String(row[idxHargaJual] || '0').replace(/,/g, '')) || 0;
 
-                // Skip baris yang nominalnya 0 dan tidak ada data lain
                 if (nominal === 0 && !String(row[idxProduk] || '').trim()) continue;
 
                 let tgl = row[idxTgl] || '';
@@ -1029,9 +1471,7 @@
                         tglStr = date.toISOString().split('T')[0];
                     }
                 } else if (typeof tgl === 'string') {
-                    // Coba parse berbagai format tanggal
                     const cleanTgl = tgl.trim();
-                    // Format DD/MM/YYYY atau DD-MM-YYYY
                     const parts = cleanTgl.split(/[\/\-]/);
                     if (parts.length === 3) {
                         let d = parseInt(parts[0]);
@@ -1053,21 +1493,17 @@
                     }
                 }
 
-                // If no date, use today
                 if (!tglStr) {
                     const today = new Date();
                     tglStr = today.toISOString().split('T')[0];
                 }
 
-                const salesName = String(row[idxSales] || '').trim().toUpperCase() || 'Unknown';
-                const produkName = String(row[idxProduk] || '').trim() || '-';
-
                 result.push({
-                    sales: salesName,
+                    sales: String(row[idxSales] || '').trim().toUpperCase() || 'Unknown',
                     tanggal: tglStr,
                     faktur: String(row[idxFaktur] || '').trim() || '-',
                     customer: String(row[idxCustomer] || '').trim() || '-',
-                    produk: produkName,
+                    produk: String(row[idxProduk] || '').trim() || '-',
                     jml: jml,
                     satuan: String(row[idxSatuan] || '').trim() || '-',
                     hargaJual: hargaJual,
@@ -1080,69 +1516,6 @@
 
             debugLog(`✅ Berhasil parsing ${rowCount} baris data`);
             return result;
-        }
-
-        // ============================================================
-        // LOAD FROM GITHUB
-        // ============================================================
-        async function loadFromGitHub() {
-            const url = document.getElementById('githubUrl').value.trim();
-            if (!url) {
-                showErr('err-footer', 'Masukkan URL raw GitHub!');
-                return;
-            }
-
-            clearDebug();
-            debugLog(`📥 Loading from: ${url}`);
-
-            showSuccess('success-footer', '⏳ Mengambil data dari GitHub...');
-
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status} - ${response.statusText}`);
-                }
-
-                const arrayBuffer = await response.arrayBuffer();
-                debugLog(`📦 File size: ${arrayBuffer.byteLength} bytes`);
-
-                const wb = XLSX.read(arrayBuffer, { type: 'array' });
-                debugLog(`📚 Sheets found: ${wb.SheetNames.join(', ')}`);
-
-                const ws = wb.Sheets[wb.SheetNames[0]];
-                const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-
-                debugLog(`📊 Data rows: ${data.length}`);
-
-                const result = parseExcelPenjualan(data);
-
-                if (result.length === 0) {
-                    showErr('err-footer', 'Data tidak ditemukan. Cek debug info untuk detail.');
-                    debugLog('❌ Hasil parsing kosong!');
-                    return;
-                }
-
-                dataPenjualan = result;
-                filteredData = [...dataPenjualan];
-
-                updateFilterOptions();
-                renderAll();
-                saveToLocalStorage();
-
-                document.getElementById('dataStatus').textContent = `✅ ${result.length} data dari GitHub`;
-                document.getElementById('dataStatus').className = 'badge badge-success';
-
-                showSuccess('success-footer',
-                    `✅ Berhasil load dari GitHub — ${result.length} baris data`
-                );
-
-            } catch (err) {
-                console.error('Error:', err);
-                debugLog(`❌ ERROR: ${err.message}`);
-                showErr('err-footer', '❌ Gagal load: ' + err.message);
-                document.getElementById('dataStatus').textContent = '❌ Gagal load';
-                document.getElementById('dataStatus').className = 'badge badge-warning';
-            }
         }
 
         // ============================================================
@@ -1185,7 +1558,7 @@
                     const result = parseExcelPenjualan(data);
 
                     if (result.length === 0) {
-                        showErr('err-footer', 'Data tidak ditemukan. Cek debug info untuk detail.');
+                        showErr('err-footer', 'Data tidak ditemukan. Cek debug info.');
                         debugLog('❌ Hasil parsing kosong!');
                         return;
                     }
@@ -1216,7 +1589,6 @@
         // FILTER OPTIONS
         // ============================================================
         function updateFilterOptions() {
-            // Sales
             const salesSet = new Set();
             dataPenjualan.forEach(d => { if (d.sales) salesSet.add(d.sales); });
             const selectSales = document.getElementById('filterSales');
@@ -1225,7 +1597,6 @@
                 selectSales.innerHTML += `<option value="${s}">${s}</option>`;
             });
 
-            // Products
             const productSet = new Set();
             dataPenjualan.forEach(d => { if (d.produk && d.produk !== '-') productSet.add(d.produk); });
             allProducts = Array.from(productSet).sort();
@@ -1236,9 +1607,6 @@
             });
         }
 
-        // ============================================================
-        // FILTER
-        // ============================================================
         function getSelectedProducts() {
             const select = document.getElementById('filterProduk');
             const selected = [];
@@ -1311,7 +1679,6 @@
                 salesMap[sales].count += 1;
             });
 
-            // Cards
             let cardsHtml = `
                 <div class="card-total">
                     <div class="card-label">💰 Total</div>
@@ -1356,7 +1723,6 @@
 
             document.getElementById('cardsContainer').innerHTML = cardsHtml;
 
-            // Table
             let html = '';
             if (data.length === 0) {
                 html = `<tr><td colspan="11" class="no-data"><span class="icon">📂</span>Tidak ada data</td></tr>`;
@@ -1545,8 +1911,8 @@
         // ============================================================
         // INIT
         // ============================================================
-        // Coba load dari localStorage dulu
         const hasCache = loadFromLocalStorage();
+        loadCloudConfig();
 
         if (!hasCache) {
             renderAll();
@@ -1557,16 +1923,15 @@
         setInterval(() => {
             document.getElementById('success-footer')?.classList.add('hidden');
             document.getElementById('err-footer')?.classList.add('hidden');
+            document.getElementById('info-footer')?.classList.add('hidden');
         }, 6000);
 
-        // Auto-filter
         document.getElementById('filterDateFrom').addEventListener('change', applyFilter);
         document.getElementById('filterDateTo').addEventListener('change', applyFilter);
         document.getElementById('filterSales').addEventListener('change', applyFilter);
         document.getElementById('filterPayment').addEventListener('change', applyFilter);
         document.getElementById('filterProduk').addEventListener('change', applyFilter);
 
-        // Load from GitHub with Enter key
         document.getElementById('githubUrl').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 loadFromGitHub();
@@ -1574,11 +1939,11 @@
         });
 
         console.log('📊 Laporan Penjualan siap!');
-        console.log('📌 Fitur:');
-        console.log('1. Upload Excel → data lokal + cache');
-        console.log('2. Load dari GitHub → data online');
-        console.log('3. Data tetap ada setelah refresh');
-        console.log('4. Debug info untuk troubleshooting');
+        console.log('☁️ Fitur Cloud:');
+        console.log('1. Setup cloud → masukkan GitHub Token + Repo');
+        console.log('2. Upload ke Cloud → data tersimpan di GitHub');
+        console.log('3. Sync → ambil data terbaru dari cloud');
+        console.log('4. Semua perangkat bisa akses data yang sama!');
     </script>
 
 </body>
