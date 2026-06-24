@@ -483,15 +483,6 @@
             font-size: 10px;
             background: white;
         }
-        .footer-actions .url-input-small {
-            flex: 1;
-            min-width: 100px;
-            padding: 4px 10px;
-            border: 1px solid #e5e7eb;
-            border-radius: 4px;
-            font-size: 10px;
-            background: white;
-        }
 
         .cloud-setup {
             background: white;
@@ -584,6 +575,49 @@
         }
         .debug-info.show {
             display: block;
+        }
+
+        /* ===== PAGINATION ===== */
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 6px 0;
+            background: #f9fafb;
+        }
+        .pagination-controls button {
+            padding: 3px 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 10px;
+            font-weight: 600;
+            color: #1a1a1a;
+            transition: 0.2s;
+        }
+        .pagination-controls button:hover {
+            background: #2a5298;
+            color: white;
+            border-color: #2a5298;
+        }
+        .pagination-controls button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .pagination-controls button:disabled:hover {
+            background: white;
+            color: #1a1a1a;
+            border-color: #e5e7eb;
+        }
+        .pagination-controls .info {
+            font-size: 10px;
+            color: #6b7280;
+            background: transparent;
+            padding: 0 10px;
+            width: auto;
         }
 
         @media (max-width: 640px) {
@@ -712,8 +746,7 @@
                 padding: 3px 8px;
                 min-width: 50px;
             }
-            .footer-actions .url-input,
-            .footer-actions .url-input-small {
+            .footer-actions .url-input {
                 font-size: 9px;
                 padding: 3px 8px;
                 min-width: 80px;
@@ -749,6 +782,19 @@
             .cloud-setup .row label {
                 font-size: 9px;
                 min-width: 60px;
+            }
+
+            .pagination-controls {
+                gap: 4px;
+                padding: 4px 0;
+            }
+            .pagination-controls button {
+                font-size: 9px;
+                padding: 2px 10px;
+            }
+            .pagination-controls .info {
+                font-size: 9px;
+                padding: 0 6px;
             }
         }
 
@@ -789,6 +835,9 @@
                 border: 1px solid #ddd !important;
             }
             .cloud-setup {
+                display: none !important;
+            }
+            .pagination-controls {
                 display: none !important;
             }
         }
@@ -1006,9 +1055,28 @@
         let allProducts = [];
         let cloudConfig = {};
 
+        // ===== PAGINATION =====
+        let currentPage = 1;
+        const rowsPerPage = 50;
+        let totalPages = 1;
+        let totalNominalGlobal = 0;
+
         const STORAGE_KEY = 'gajahmas_penjualan_data';
         const STORAGE_TIME_KEY = 'gajahmas_penjualan_time';
         const CLOUD_CONFIG_KEY = 'gajahmas_cloud_config';
+
+        // ============================================================
+        // TOGGLE CLOUD SETUP
+        // ============================================================
+        function toggleCloudSetup() {
+            const el = document.getElementById('cloudSetup');
+            if (el) {
+                el.classList.toggle('show');
+                if (el.classList.contains('show')) {
+                    loadCloudConfig();
+                }
+            }
+        }
 
         // ============================================================
         // CLOUD CONFIG
@@ -1071,16 +1139,8 @@
             if (type) el.classList.add(type);
         }
 
-        function toggleCloudSetup() {
-            const el = document.getElementById('cloudSetup');
-            el.classList.toggle('show');
-            if (el.classList.contains('show')) {
-                loadCloudConfig();
-            }
-        }
-
         // ============================================================
-        // UPLOAD TO CLOUD (GitHub)
+        // UPLOAD TO CLOUD
         // ============================================================
         async function uploadToCloud() {
             if (dataPenjualan.length === 0) {
@@ -1169,7 +1229,6 @@
                     throw new Error(err.message || 'Gagal upload');
                 }
 
-                const result = await uploadRes.json();
                 const rawUrl = `https://raw.githubusercontent.com/${cloudConfig.repo}/main/${cloudConfig.file}`;
                 document.getElementById('githubUrl').value = rawUrl;
 
@@ -1635,6 +1694,7 @@
                 return true;
             });
 
+            currentPage = 1;
             renderAll();
             showSuccess('success-footer', `✅ Filter diterapkan — ${filteredData.length} data ditampilkan`);
         }
@@ -1649,16 +1709,26 @@
                 selectProduk.options[i].selected = (selectProduk.options[i].value === 'all');
             }
             filteredData = [...dataPenjualan];
+            currentPage = 1;
             renderAll();
             showSuccess('success-footer', '↺ Filter direset');
         }
 
         // ============================================================
-        // RENDER
+        // RENDER (dengan PAGINATION)
         // ============================================================
         function renderAll() {
             const data = filteredData;
+            totalPages = Math.ceil(data.length / rowsPerPage) || 1;
 
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = Math.min(start + rowsPerPage, data.length);
+            const pageData = data.slice(start, end);
+
+            // Hitung total
             let totalNominal = 0;
             let totalCash = 0;
             let totalTempo = 0;
@@ -1679,6 +1749,9 @@
                 salesMap[sales].count += 1;
             });
 
+            totalNominalGlobal = totalNominal;
+
+            // CARDS
             let cardsHtml = `
                 <div class="card-total">
                     <div class="card-label">💰 Total</div>
@@ -1723,11 +1796,12 @@
 
             document.getElementById('cardsContainer').innerHTML = cardsHtml;
 
+            // TABLE BODY (halaman aktif)
             let html = '';
-            if (data.length === 0) {
+            if (pageData.length === 0) {
                 html = `<tr><td colspan="11" class="no-data"><span class="icon">📂</span>Tidak ada data</td></tr>`;
             } else {
-                data.forEach(d => {
+                pageData.forEach(d => {
                     const tgl = d.tanggal ? d.tanggal.split('-').reverse().join('/') : '-';
                     const salesClass = salesColors[d.sales] || 'unknown';
                     const isNegative = (d.nominal || 0) < 0;
@@ -1751,20 +1825,51 @@
 
             document.getElementById('penjualanBody').innerHTML = html;
 
-            const footerHtml = data.length === 0 ? '' : `<tr class="total-row">
-                <td colspan="4"><strong>TOTAL</strong></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td><strong>${fmtRupiah(totalNominal)}</strong></td>
-                <td></td>
-                <td></td>
-            </tr>`;
+            // FOOTER + PAGINATION
+            let footerHtml = '';
+            if (data.length > 0) {
+                footerHtml = `
+                    <tr class="total-row">
+                        <td colspan="4"><strong>TOTAL</strong></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><strong>${fmtRupiah(totalNominal)}</strong></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td colspan="11" style="padding:0;">
+                            <div class="pagination-controls">
+                                <button onclick="changePage('prev')" ${currentPage <= 1 ? 'disabled' : ''}>◀ Prev</button>
+                                <span class="info">Halaman ${currentPage} dari ${totalPages} (${start+1}-${end} dari ${data.length} data)</span>
+                                <button onclick="changePage('next')" ${currentPage >= totalPages ? 'disabled' : ''}>Next ▶</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
             document.getElementById('penjualanFoot').innerHTML = footerHtml;
 
             document.getElementById('badge-periode').textContent = data.length + ' transaksi';
             document.getElementById('totalDataInfo').textContent = `(${data.length} data)`;
+        }
+
+        // ============================================================
+        // PAGINATION NAVIGATION
+        // ============================================================
+        function changePage(direction) {
+            if (direction === 'prev' && currentPage > 1) {
+                currentPage--;
+            } else if (direction === 'next' && currentPage < totalPages) {
+                currentPage++;
+            } else {
+                return;
+            }
+            renderAll();
+            // Scroll ke tabel
+            document.querySelector('.tbl-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         // ============================================================
@@ -1828,6 +1933,7 @@
                         td:first-child, td:nth-child(2), td:nth-child(3), td:nth-child(4) { text-align: left; }
                         .footer { margin-top: 15px; text-align: center; font-size: 9px; color: #999; }
                         tfoot td { font-weight: bold; background: #f4faff; }
+                        .pagination-controls { display: none; }
                     </style>
                 </head>
                 <body>
@@ -1939,11 +2045,12 @@
         });
 
         console.log('📊 Laporan Penjualan siap!');
-        console.log('☁️ Fitur Cloud:');
-        console.log('1. Setup cloud → masukkan GitHub Token + Repo');
+        console.log('📌 Fitur:');
+        console.log('1. Setup Cloud → masukkan GitHub Token + Repo');
         console.log('2. Upload ke Cloud → data tersimpan di GitHub');
         console.log('3. Sync → ambil data terbaru dari cloud');
         console.log('4. Semua perangkat bisa akses data yang sama!');
+        console.log('📌 Pagination: 50 baris per halaman');
     </script>
 
 </body>
