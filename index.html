@@ -72,7 +72,6 @@
             color: #1d4ed8;
         }
 
-        /* ===== TOMBOL SETUP DI HEADER ===== */
         .btn-header-setup {
             background: #6b7280;
             color: white;
@@ -152,18 +151,6 @@
         .card-total .card-val.total-main {
             font-size: 16px;
             color: #2a5298;
-        }
-        .card-total .card-val.sales-name {
-            font-size: 11px;
-            color: #1a1a1a;
-        }
-        .card-total.sales-card {
-            border-left: 3px solid #2a5298;
-        }
-        .card-total .sub-text {
-            font-size: 9px;
-            color: #6b7280;
-            margin-top: 1px;
         }
 
         .filter-bar {
@@ -454,8 +441,6 @@
         .footer-actions .btn-sync:hover {
             opacity: 0.9;
         }
-
-        /* Tombol Setup Cloud di footer tetap ada tapi disembunyikan di HP */
         .footer-actions .btn-setup {
             background: #6b7280;
             color: white;
@@ -595,7 +580,6 @@
             display: block;
         }
 
-        /* ===== PAGINATION ===== */
         .pagination-controls {
             display: flex;
             justify-content: center;
@@ -638,7 +622,6 @@
             width: auto;
         }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 640px) {
             .top-header {
                 padding: 4px 10px;
@@ -695,12 +678,6 @@
             }
             .card-total .card-val.total-main {
                 font-size: 13px;
-            }
-            .card-total .card-val.sales-name {
-                font-size: 9px;
-            }
-            .card-total .sub-text {
-                font-size: 7px;
             }
 
             .filter-bar {
@@ -774,7 +751,6 @@
                 padding: 3px 8px;
                 min-width: 80px;
             }
-            /* Sembunyikan tombol Setup di footer pada HP biar tidak dobel */
             .footer-actions .btn-setup {
                 display: none;
             }
@@ -907,11 +883,9 @@
 </head>
 <body>
 
-    <!-- ===== HEADER DENGAN TOMBOL SETUP ===== -->
     <header class="top-header">
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
             <h2 class="page-title">📊 Penjualan <span>Laporan</span></h2>
-            <!-- ===== TOMBOL SETUP CLOUD DI HEADER ===== -->
             <button class="btn-header-setup" onclick="toggleCloudSetup()">⚙️ Setup Cloud</button>
         </div>
         <div class="user-info">
@@ -944,12 +918,16 @@
                 <div class="card-val" id="total-tempo">Rp 0</div>
             </div>
             <div class="card-total">
-                <div class="card-label">📦 Transaksi</div>
-                <div class="card-val" id="total-transaksi">0</div>
+                <div class="card-label">📈 Profit Cash</div>
+                <div class="card-val" id="total-profit-cash">Rp 0</div>
             </div>
             <div class="card-total">
-                <div class="card-label">📋 Faktur</div>
-                <div class="card-val" id="total-faktur">0</div>
+                <div class="card-label">📈 Profit Tempo</div>
+                <div class="card-val" id="total-profit-tempo">Rp 0</div>
+            </div>
+            <div class="card-total">
+                <div class="card-label">📦 Transaksi</div>
+                <div class="card-val" id="total-transaksi">0</div>
             </div>
         </div>
 
@@ -1062,7 +1040,6 @@
             <button class="btn btn-print" onclick="printLaporan()">🖨️ Print</button>
             <button class="btn btn-save" onclick="saveExcel()">💾 Simpan Excel</button>
             <button class="btn btn-clear" onclick="clearData()">🗑️ Hapus Data</button>
-            <!-- Tombol Setup di footer tetap ada (tapi di HP sembunyi) -->
             <button class="btn btn-setup" onclick="toggleCloudSetup()">⚙️ Setup Cloud</button>
             <span id="err-footer" class="err hidden"></span>
             <span id="success-footer" class="success hidden"></span>
@@ -1762,30 +1739,28 @@
             const end = Math.min(start + rowsPerPage, data.length);
             const pageData = data.slice(start, end);
 
-            // Hitung total
+            // ===== HITUNG TOTAL =====
             let totalNominal = 0;
             let totalCash = 0;
             let totalTempo = 0;
-            const fakturSet = new Set();
+            let totalProfitCash = 0;
+            let totalProfitTempo = 0;
 
-            const salesMap = {};
             data.forEach(d => {
                 totalNominal += d.nominal || 0;
-                if (d.pembayaran === 'Cash') totalCash += d.nominal || 0;
-                if (d.pembayaran === 'Tempo') totalTempo += d.nominal || 0;
-                if (d.faktur) fakturSet.add(d.faktur);
-
-                const sales = d.sales || 'Unknown';
-                if (!salesMap[sales]) {
-                    salesMap[sales] = { total: 0, count: 0 };
+                if (d.pembayaran === 'Cash') {
+                    totalCash += d.nominal || 0;
+                    totalProfitCash += d.profit || 0;
                 }
-                salesMap[sales].total += d.nominal || 0;
-                salesMap[sales].count += 1;
+                if (d.pembayaran === 'Tempo') {
+                    totalTempo += d.nominal || 0;
+                    totalProfitTempo += d.profit || 0;
+                }
             });
 
             totalNominalGlobal = totalNominal;
 
-            // CARDS
+            // ===== CARDS =====
             let cardsHtml = `
                 <div class="card-total">
                     <div class="card-label">💰 Total</div>
@@ -1800,37 +1775,22 @@
                     <div class="card-val">${fmtRupiah(totalTempo)}</div>
                 </div>
                 <div class="card-total">
+                    <div class="card-label">📈 Profit Cash</div>
+                    <div class="card-val">${fmtRupiah(totalProfitCash)}</div>
+                </div>
+                <div class="card-total">
+                    <div class="card-label">📈 Profit Tempo</div>
+                    <div class="card-val">${fmtRupiah(totalProfitTempo)}</div>
+                </div>
+                <div class="card-total">
                     <div class="card-label">📦 Transaksi</div>
                     <div class="card-val">${data.length}</div>
                 </div>
-                <div class="card-total">
-                    <div class="card-label">📋 Faktur</div>
-                    <div class="card-val">${fakturSet.size}</div>
-                </div>
             `;
-
-            const sortedSales = Object.keys(salesMap).sort();
-            sortedSales.forEach(sales => {
-                const s = salesMap[sales];
-                const colorClass = salesColors[sales] || 'unknown';
-                const colorMap = {
-                    'raju': '#1d4ed8',
-                    'hafid': '#059669',
-                    'jossy': '#d97706',
-                    'unknown': '#6b7280'
-                };
-                cardsHtml += `
-                    <div class="card-total sales-card" style="border-left-color: ${colorMap[colorClass] || '#6b7280'}">
-                        <div class="card-label">👤 ${sales}</div>
-                        <div class="card-val sales-name">${fmtRupiah(s.total)}</div>
-                        <div class="sub-text">${s.count} transaksi</div>
-                    </div>
-                `;
-            });
 
             document.getElementById('cardsContainer').innerHTML = cardsHtml;
 
-            // TABLE BODY (halaman aktif)
+            // ===== TABLE BODY =====
             let html = '';
             if (pageData.length === 0) {
                 html = `<tr><td colspan="11" class="no-data"><span class="icon">📂</span>Tidak ada data</td></tr>`;
@@ -1859,7 +1819,7 @@
 
             document.getElementById('penjualanBody').innerHTML = html;
 
-            // FOOTER + PAGINATION
+            // ===== FOOTER + PAGINATION =====
             let footerHtml = '';
             if (data.length > 0) {
                 footerHtml = `
@@ -1902,7 +1862,6 @@
                 return;
             }
             renderAll();
-            // Scroll ke tabel
             document.querySelector('.tbl-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
@@ -1937,17 +1896,8 @@
             const totalNominal = filteredData.reduce((s, d) => s + (d.nominal || 0), 0);
             const totalCash = filteredData.filter(d => d.pembayaran === 'Cash').reduce((s, d) => s + (d.nominal || 0), 0);
             const totalTempo = filteredData.filter(d => d.pembayaran === 'Tempo').reduce((s, d) => s + (d.nominal || 0), 0);
-
-            const salesMap = {};
-            filteredData.forEach(d => {
-                const sales = d.sales || 'Unknown';
-                if (!salesMap[sales]) salesMap[sales] = 0;
-                salesMap[sales] += d.nominal || 0;
-            });
-            let salesSummaryHtml = '';
-            Object.keys(salesMap).sort().forEach(s => {
-                salesSummaryHtml += `<span class="summary-item">👤 ${s}: ${fmtRupiah(salesMap[s])}</span>`;
-            });
+            const totalProfitCash = filteredData.filter(d => d.pembayaran === 'Cash').reduce((s, d) => s + (d.profit || 0), 0);
+            const totalProfitTempo = filteredData.filter(d => d.pembayaran === 'Tempo').reduce((s, d) => s + (d.profit || 0), 0);
 
             printWindow.document.write(`
                 <html>
@@ -1976,9 +1926,10 @@
                         <span class="summary-item">💰 TOTAL: ${fmtRupiah(totalNominal)}</span>
                         <span class="summary-item">📌 CASH: ${fmtRupiah(totalCash)}</span>
                         <span class="summary-item">🧾 TEMPO: ${fmtRupiah(totalTempo)}</span>
+                        <span class="summary-item">📈 PROFIT CASH: ${fmtRupiah(totalProfitCash)}</span>
+                        <span class="summary-item">📈 PROFIT TEMPO: ${fmtRupiah(totalProfitTempo)}</span>
                         <span class="summary-item">📦 TRANSAKSI: ${filteredData.length}</span>
                     </div>
-                    <div class="sales-summary">${salesSummaryHtml}</div>
                     <table>
                         <thead><tr>
                             <th>Tanggal</th><th>No. Faktur</th><th>Sales</th><th>Customer</th>
@@ -2085,7 +2036,7 @@
         console.log('3. Sync → ambil data terbaru dari cloud');
         console.log('4. Semua perangkat bisa akses data yang sama!');
         console.log('📌 Pagination: 50 baris per halaman');
-        console.log('📌 Tombol Setup Cloud ada di header (atas)');
+        console.log('📌 Cards: Total, Cash, Tempo, Profit Cash, Profit Tempo, Transaksi');
     </script>
 
 </body>
